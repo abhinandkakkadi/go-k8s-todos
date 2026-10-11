@@ -23,9 +23,10 @@ ssh-keygen -t ed25519 -N '' -C cd-bump-tag -f /tmp/cd-key
 gh repo deploy-key add /tmp/cd-key.pub --allow-write --title cd-bump-tag
 gh secret set DEPLOY_KEY < /tmp/cd-key
 rm /tmp/cd-key /tmp/cd-key.pub
-# Then delete the old key (gh repo deploy-key list / delete) and add the new key ID
-# to the ruleset bypass list: Settings -> Rules -> main-protection.
+gh repo deploy-key list                     # then: gh repo deploy-key delete <old-id>
 ```
+
+The ruleset bypasses all of this repo's deploy keys, so keep `cd-bump-tag` the only one.
 
 ### Secret (never committed)
 
