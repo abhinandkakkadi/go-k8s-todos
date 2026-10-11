@@ -1,0 +1,70 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: go-api
+spec:
+  replicas: 2
+  revisionHistoryLimit: 5
+  progressDeadlineSeconds: 120   # a broken rollout is marked failed instead of hanging forever
+  minReadySeconds: 5
+  strategy:
+    rollingUpdate: { maxSurge: 1, maxUnavailable: 0 }   # old pods keep serving until new ones are Ready
+  selector:
+    matchLabels:
+      app: go-api
+  template:
+    metadata:
+      labels:
+        app: go-api
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65534
+      containers:
+        - name: api
+          # Tag is set by the overlay (kustomize images:).
+          image: ghcr.io/abhinandkakkadi/go-k8s-todos
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8080
+
+          # Not read by the app yet; wired so config/creds are in place when it does.
+          envFrom:
+            - configMapRef:
+                name: go-api-config
+            # Created by hand, not in git. See RUNBOOK.md.
+            - secretRef:
+                name: go-api-db
+
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              memory: 256Mi
+
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+
+          startupProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            periodSeconds: 5
+            failureThreshold: 30
+
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: http
+            periodSeconds: 5
+
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            periodSeconds: 10
