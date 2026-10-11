@@ -2,24 +2,25 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
 resources:
-  - ../../base
+- ../../base
 
 replicas:
-  - name: go-api
-    count: 3
+- count: 3
+  name: go-api
 
 images:
-  - name: ghcr.io/abhinandkakkadi/go-k8s-todos
-    newTag: latest
+- name: ghcr.io/abhinandkakkadi/go-k8s-todos
+  newName: ghcr.io/abhinandkakkadi/go-k8s-todos
+  newTag: sha-87ac4dd
 
 patches:
-  - target:
-      kind: ConfigMap
-      name: go-api-config
-    patch: |-
-      - op: replace
-        path: /data/APP_ENV
-        value: prod
-      - op: replace
-        path: /data/LOG_LEVEL
-        value: info
+- patch: |-
+    - op: replace
+      path: /data/APP_ENV
+      value: prod
+    - op: replace
+      path: /data/LOG_LEVEL
+      value: info
+  target:
+    kind: ConfigMap
+    name: go-api-config
