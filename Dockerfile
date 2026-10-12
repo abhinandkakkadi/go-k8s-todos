@@ -1,4 +1,6 @@
-FROM golang:1.25-alpine AS builder
+# Builder runs on the runner's native arch and cross-compiles for the target,
+# so multi-arch builds need no QEMU emulation.
+FROM --platform=$BUILDPLATFORM golang:1.25-alpine AS builder
 
 WORKDIR /app
 
@@ -11,8 +13,9 @@ COPY internal/ internal/
 
 # Git SHA, exposed at GET /version.
 ARG VERSION=dev
+ARG TARGETOS TARGETARCH
 
-RUN CGO_ENABLED=0 GOOS=linux go build \
+RUN CGO_ENABLED=0 GOOS=$TARGETOS GOARCH=$TARGETARCH go build \
     -trimpath \
     -ldflags "-s -w -X main.version=${VERSION}" \
     -o go-api ./cmd/api
