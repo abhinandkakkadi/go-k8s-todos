@@ -11,7 +11,7 @@ replicas:
 images:
 - name: ghcr.io/abhinandkakkadi/go-k8s-todos
   newName: ghcr.io/abhinandkakkadi/go-k8s-todos
-  newTag: sha-87ac4dd
+  newTag: sha-7fd7a31
 
 patches:
 - patch: |-
