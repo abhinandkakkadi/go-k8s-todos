@@ -1,0 +1,32 @@
+# Limits what the go-k8s-todos Application may do: one repo, one namespace,
+# and only the kinds it actually ships. The built-in "default" project allows
+# any repo, any cluster, any namespace and any kind.
+# A new kind in k8s/ (e.g. HorizontalPodAutoscaler) must be added here first,
+# or the sync fails with "resource ... is not permitted in project".
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: go-k8s-todos
+  namespace: argocd
+spec:
+  description: go-k8s-todos API
+  sourceRepos:
+    - https://github.com/abhinandkakkadi/go-k8s-todos.git
+  destinations:
+    - server: https://kubernetes.default.svc
+      namespace: go-api
+  # Cluster-scoped: only the Namespace that CreateNamespace=true makes.
+  clusterResourceWhitelist:
+    - group: ""
+      kind: Namespace
+  namespaceResourceWhitelist:
+    - group: ""
+      kind: ConfigMap
+    - group: ""
+      kind: Service
+    - group: apps
+      kind: Deployment
+    - group: policy
+      kind: PodDisruptionBudget
+    - group: networking.k8s.io
+      kind: NetworkPolicy
