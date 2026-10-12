@@ -6,7 +6,7 @@ metadata:
   finalizers:
     - resources-finalizer.argocd.argoproj.io
 spec:
-  project: default
+  project: go-k8s-todos   # argocd/project.yaml
   source:
     repoURL: https://github.com/abhinandkakkadi/go-k8s-todos.git
     targetRevision: main

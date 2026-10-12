@@ -52,9 +52,23 @@ GHCR packages are private by default. Pick one:
 
 ### ArgoCD
 
+The project must exist before the Application that references it:
+
 ```sh
-kubectl apply -f argocd/application.yaml
+kubectl apply -f argocd/project.yaml -f argocd/application.yaml
 ```
+
+ArgoCD does not watch `argocd/`. After changing either file, re-run the command above.
+
+The project only allows the kinds listed in `argocd/project.yaml`. Adding a new kind under `k8s/` (e.g. a HorizontalPodAutoscaler) without adding it there fails the sync with `resource ... is not permitted in project`.
+
+## Network policy
+
+`k8s/base/networkpolicy.yaml` denies all traffic in `go-api` except:
+- DNS to CoreDNS
+- pods in `go-api` to the API on 8080
+
+Anything else calling the API (an ingress controller, Prometheus) or anything the API calls (Postgres) needs its own allow rule. `kubectl port-forward` and kubelet probes are not affected.
 
 ## Verify a deploy
 

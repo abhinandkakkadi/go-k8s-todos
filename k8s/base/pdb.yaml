@@ -1,0 +1,14 @@
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: go-api
+spec:
+  # At most one pod down at a time during voluntary disruptions (node drain,
+  # cluster upgrade). maxUnavailable, not minAvailable, so it stays correct
+  # whatever the replica count (2 in base, 3 in prod, or an HPA later).
+  maxUnavailable: 1
+  # Crash-looping pods are already serving nothing; don't let them block a drain.
+  unhealthyPodEvictionPolicy: AlwaysAllow
+  selector:
+    matchLabels:
+      app: go-api
